@@ -1,0 +1,180 @@
+name: Validate Docker Files
+
+on:
+  pull_request:
+    paths:
+      - 'participantes/**'
+
+jobs:
+  validate-docker-files:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            participantes/**/Dockerfile
+            participantes/**/docker-compose.yaml
+            participantes/**/docker-compose.yml
+
+      - name: Validate Dockerfiles
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          #!/bin/bash
+          set -e
+
+          DOCKERFILES=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr ' ' '\n' | grep -E 'Dockerfile$' || true)
+
+          if [ -z "$DOCKERFILES" ]; then
+            echo "No Dockerfiles changed in this PR"
+            exit 0
+          fi
+
+          VALIDATION_FAILED=0
+
+          for dockerfile in $DOCKERFILES; do
+            echo "Validating $dockerfile..."
+
+            # Check if file exists
+            if [ ! -f "$dockerfile" ]; then
+              echo "❌ File not found: $dockerfile"
+              VALIDATION_FAILED=1
+              continue
+            fi
+
+            # Check if Dockerfile uses scratch image
+            if ! grep -q '^FROM scratch' "$dockerfile"; then
+              echo "❌ $dockerfile must use 'FROM scratch' as base image"
+              VALIDATION_FAILED=1
+            else
+              echo "✅ $dockerfile uses scratch image"
+            fi
+          done
+
+          if [ $VALIDATION_FAILED -eq 1 ]; then
+            echo ""
+            echo "❌ Dockerfile validation failed!"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ All Dockerfiles validated successfully!"
+
+      - name: Install yq for YAML parsing
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Validate docker-compose files
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          #!/bin/bash
+          set -e
+
+          COMPOSE_FILES=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | tr ' ' '\n' | grep -E 'docker-compose\.ya?ml$' || true)
+
+          if [ -z "$COMPOSE_FILES" ]; then
+            echo "No docker-compose files changed in this PR"
+            exit 0
+          fi
+
+          VALIDATION_FAILED=0
+
+          for compose_file in $COMPOSE_FILES; do
+            echo "Validating $compose_file..."
+
+            # Check if file exists
+            if [ ! -f "$compose_file" ]; then
+              echo "❌ File not found: $compose_file"
+              VALIDATION_FAILED=1
+              continue
+            fi
+
+            # Get the first service name
+            SERVICE_NAME=$(yq eval '.services | keys | .[0]' "$compose_file")
+
+            if [ "$SERVICE_NAME" == "null" ] || [ -z "$SERVICE_NAME" ]; then
+              echo "❌ No services found in $compose_file"
+              VALIDATION_FAILED=1
+              continue
+            fi
+
+            echo "Checking service: $SERVICE_NAME"
+
+            # Check for OPENROUTER_API_KEY environment variable
+            HAS_OPENROUTER=$(yq eval ".services.$SERVICE_NAME.environment" "$compose_file" | grep -i "OPENROUTER_API_KEY" || true)
+            if [ -z "$HAS_OPENROUTER" ]; then
+              echo "❌ $compose_file must have OPENROUTER_API_KEY environment variable"
+              VALIDATION_FAILED=1
+            else
+              echo "✅ OPENROUTER_API_KEY found"
+            fi
+
+            # Check for PORT environment variable
+            HAS_PORT=$(yq eval ".services.$SERVICE_NAME.environment" "$compose_file" | grep -E "^PORT" || true)
+            if [ -z "$HAS_PORT" ]; then
+              echo "❌ $compose_file must have PORT environment variable"
+              VALIDATION_FAILED=1
+            else
+              echo "✅ PORT environment variable found"
+            fi
+
+            # Check for port 18020 exposed
+            PORTS=$(yq eval ".services.$SERVICE_NAME.ports[]" "$compose_file" 2>/dev/null || echo "")
+            HAS_PORT_18020=0
+
+            for port in $PORTS; do
+              # Handle both "18020:8080" and "18020" formats
+              if echo "$port" | grep -q "^18020:" || [ "$port" == "18020" ]; then
+                HAS_PORT_18020=1
+                break
+              fi
+            done
+
+            if [ $HAS_PORT_18020-eq 0 ]; then
+              echo "❌ $compose_file must expose port 18020"
+              VALIDATION_FAILED=1
+            else
+              echo "✅ Port 18020 exposed"
+            fi
+
+            # Check CPU limit
+            CPU_LIMIT=$(yq eval ".services.$SERVICE_NAME.deploy.resources.limits.cpus" "$compose_file" 2>/dev/null || echo "null")
+            if [ "$CPU_LIMIT" == "null" ]; then
+              echo "❌ $compose_file must have CPU limit defined"
+              VALIDATION_FAILED=1
+            elif [ "$CPU_LIMIT" != "0.5" ] && [ "$CPU_LIMIT" != "'0.5'" ]; then
+              echo "❌ $compose_file must have CPU limit of 0.5 (found: $CPU_LIMIT)"
+              VALIDATION_FAILED=1
+            else
+              echo "✅ CPU limit is 0.5"
+            fi
+
+            # Check memory limit
+            MEMORY_LIMIT=$(yq eval ".services.$SERVICE_NAME.deploy.resources.limits.memory" "$compose_file" 2>/dev/null || echo "null")
+            if [ "$MEMORY_LIMIT" == "null" ]; then
+              echo "❌ $compose_file must have memory limit defined"
+              VALIDATION_FAILED=1
+            elif [ "$MEMORY_LIMIT" != "128MB" ] && [ "$MEMORY_LIMIT" != "128M" ]; then
+              echo "❌ $compose_file must have memory limit of 128MB (found: $MEMORY_LIMIT)"
+              VALIDATION_FAILED=1
+            else
+              echo "✅ Memory limit is 128MB"
+            fi
+
+            echo ""
+          done
+
+          if [ $VALIDATION_FAILED -eq 1 ]; then
+            echo "❌ docker-compose validation failed!"
+            exit 1
+          fi
+
+          echo "✅ All docker-compose files validated successfully!"
