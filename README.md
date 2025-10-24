@@ -96,18 +96,19 @@ Então você deve:
 
 ### Critérios de aprovação do PR
 
-- A imagem Docker deve estar em repositório público.
+- O código fonte deve estar na pasta `participantes/NOME_DA_DUPLA/src`.
+- O Dockerfile deve estar na pasta `participantes/NOME_DA_DUPLA/`.
+- O docker-compose.yml deve estar na pasta `participantes/NOME_DA_DUPLA/`.
 - O serviço deve ler uma variável de ambiente: `OPENROUTER_API_KEY`.
-- O serviço deve expor a porta 18020 conforme o exemplo do docker-compose.
-- O serviço deve estar em conformidade com os limites de recursos especificados de 50% de CPU e 128MB de RAM.
+- O serviço deve expor a porta *18020* conforme o exemplo do docker-compose.
+- O serviço deve estar em conformidade com os limites de recursos especificados de 50% de CPU e 128MB de RAM definidos no docker-compose.
 
 ## Critérios de avaliação da entrega
 
 - Retornar corretamente os serviços para as intenções fornecidas. Sendo o total de 93.
-- Retornar o serviço mais adequado para as 100 intenções similares. Neste caso essas intenções não estão no CSV fornecido e serão base para execução da segunda rodada de testes.
-- Caso haja empate entre os times, o critério de desempate será a métrica p99 através de um teste de carga.
-
-Made with :heart: by the Golang SP.
+- Retornar o serviço mais adequado para as 80 intenções similares (*5 para cada serviço*). Neste caso essas intenções não estão no CSV fornecido e serão base para execução da segunda rodada de testes.
+- Caso haja empate entre os times, o critério de desempate será o menor tempo médio obtido.
+- Se nenhuma dupla atingir o critério de 93 intenções fornecidas, o critério de desempate será o maior número de intenções corretas atendidas.
 
 ## Modelos de IA
 
@@ -118,6 +119,12 @@ Recomendamos o uso dos seguintes modelos da OpenRouter, que oferecem um bom equi
 
 ## Consultar créditos restantes na OpenRouter
 
+Para consultar os créditos restantes na sua conta da OpenRouter, você pode utilizar o seguinte script Python:
+
+> Não se esqueça de substituir `<seu_token_aqui>` pela sua chave de API real.
+
 ```shell
 python ./utils/check_limit_openrouter.py
 ```
+
+Made with :heart: by the Golang SP.
