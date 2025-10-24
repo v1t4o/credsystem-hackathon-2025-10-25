@@ -105,10 +105,29 @@ Então você deve:
 
 ## Critérios de avaliação da entrega
 
-- Retornar corretamente os serviços para as intenções fornecidas. Sendo o total de 93.
-- Retornar o serviço mais adequado para as 80 intenções similares (*5 para cada serviço*). Neste caso essas intenções não estão no CSV fornecido e serão base para execução da segunda rodada de testes.
-- Caso haja empate entre os times, o critério de desempate será o menor tempo médio obtido.
-- Se nenhuma dupla atingir o critério de 93 intenções fornecidas, o critério de desempate será o maior número de intenções corretas atendidas.
+A avaliação será baseada em **duas rodadas de testes**:
+
+1. **Teste 93**: Retornar corretamente os serviços para as 93 intenções fornecidas no arquivo `./assets/intents_pre_loaded.csv`.
+2. **Teste 80**: Retornar o serviço mais adequado para 80 intenções similares (*5 para cada serviço*). Neste caso essas intenções não estão no CSV fornecido e serão base para execução da segunda rodada de testes.
+
+### Sistema de Pontuação
+
+Cada participante receberá uma pontuação calculada da seguinte forma:
+
+- **Sucessos**: +10.0 pontos por cada resposta correta (tanto no Teste 93 quanto no Teste 80)
+- **Falhas**: -50.0 pontos por cada resposta incorreta ou erro
+- **Tempo de Resposta**: -0.01 pontos por milissegundo de tempo médio de resposta (média dos dois testes)
+
+**Fórmula**: `Score = (Total_Sucessos × 10.0) - (Total_Falhas × 50.0) - (Tempo_Médio_ms × 0.01)`
+
+### Ranking Final
+
+Os participantes serão ranqueados pela **maior pontuação total**. Quanto maior o score, melhor a colocação.
+
+**Exemplo de cálculo**:
+
+- 171 sucessos, 2 falhas, tempo médio de 3270ms
+- Score = (171 × 10) - (2 × 50) - (3270 × 0.01) = 1710 - 100 - 32.7 = **1577.3 pontos**
 
 ## Modelos de IA
 

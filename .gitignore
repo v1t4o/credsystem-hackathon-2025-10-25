@@ -31,7 +31,8 @@ go.work.sum
 # .idea/
 # .vscode/
 
-# Logs
+# load test results
 participantes/**/results/
 participantes/**/docker-compose.logs
 load-test/*.logs
+*/results.html
