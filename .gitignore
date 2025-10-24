@@ -34,3 +34,4 @@ go.work.sum
 # Logs
 participantes/**/results/
 participantes/**/docker-compose.logs
+load-test/*.logs
