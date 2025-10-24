@@ -96,7 +96,7 @@ Então você deve:
 
 ### Critérios de aprovação do PR
 
-- O código fonte deve estar na pasta `participantes/NOME_DA_DUPLA/src`.
+- O código fonte deve estar na pasta `participantes/NOME_DA_DUPLA/`.
 - O Dockerfile deve estar na pasta `participantes/NOME_DA_DUPLA/`.
 - O docker-compose.yml deve estar na pasta `participantes/NOME_DA_DUPLA/`.
 - O serviço deve ler uma variável de ambiente: `OPENROUTER_API_KEY`.
