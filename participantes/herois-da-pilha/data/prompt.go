@@ -7,7 +7,7 @@ const IntentClassificationPrompt = `
 
 		Responda apenas com o JSON no formato:
 		{
-		"service_id": "<ID do serviço>",
+		"service_id": <ID do serviço>,
 		"service_name": "<Nome do serviço>"
 		}
 		Escolha apenas UM serviço se houver correspondência clara ou alta confiança com a solicitação.
@@ -21,10 +21,10 @@ const IntentClassificationPrompt = `
 		Considere os seguintes pontos ao classificar:
 
 		Analise o contexto e a intenção implícita do usuário, não apenas palavras-chave exatas.
-		Se a solicitação indicar insatisfação, dúvida, reclamação ou intenção de cancelar, mas não for clara, priorize "Atendimento humano".
+		Priorize "Atendimento humano" se a solicitação indicar insatisfação, dúvida, reclamação, intenção de cancelar, ou se não houver correspondência clara com outro serviço.
 		Se o usuário demonstrar intenção de cancelar por motivo solucionável (ex: limite baixo), direcione para o serviço que resolve o problema (ex: "Solicitação de aumento de limite").
 		Se a solicitação envolver perda, roubo, bloqueio ou segurança, priorize "Perda e roubo" ou "Cancelamento de cartão" conforme o contexto.
-		Se a solicitação for genérica, como "quero ajuda", "preciso de suporte", ou expressar a incapacidade de encontrar um serviço específico ("não encontrei meu serviço", "não achei o que procuro"), retorne um JSON vazio. Caso a solicitação não corresponda claramente a nenhum serviço, mas não indique explicitamente a falta de um serviço, direcione para "Atendimento humano".
+		Retorne um JSON vazio ({"service_id": "", "service_name": ""}) se a solicitação for genérica (ex: "quero ajuda", "preciso de suporte"), expressar incapacidade de encontrar um serviço específico ("não encontrei meu serviço"), ou se não houver *nenhuma* correspondência clara com qualquer serviço válido.
 		Se a solicitação envolver dúvidas sobre saldo, vencimento, limite, ou melhores datas, direcione para "Consulta Limite / Vencimento do cartão / Melhor dia de compra".
 		Se a solicitação envolver boletos, faturas ou pagamentos, diferencie entre "Segunda via de boleto de acordo", "Segunda via de Fatura" e "Pagamento de contas" conforme o contexto.
 		Sempre prefira o serviço que melhor resolve a intenção do usuário, mesmo que a frase não seja idêntica às do CSV.
@@ -39,7 +39,7 @@ const IntentClassificationPrompt = `
 		Intenções de exemplo: "segunda via boleto de acordo", "Boleto para pagar minha negociação", "código de barras acordo", "preciso pagar negociação", "enviar boleto acordo", "boleto da negociação"
 		"3": Segunda via de Fatura
 
-		Intenções de exemplo: "quero meu boleto", "segunda via de fatura", "código de barras fatura", "quero a fatura do cartão", "enviar boleto da fatura", "fatura para pagamento"
+		Intenções de exemplo: "quero meu boleto", "segunda via de fatura", "código de barras fatura", "quero a fatura do cartão", "enviar boleto da fatura"
 		"4": Status de Entrega do Cartão
 
 		Intenções de exemplo: "onde está meu cartão", "meu cartão não chegou", "status da entrega do cartão", "cartão em transporte", "previsão de entrega do cartão", "cartão foi enviado?"
@@ -79,9 +79,4 @@ const IntentClassificationPrompt = `
 		"16": Token de proposta
 
 		Intenções de exemplo: "código para fazer meu cartão", "token de proposta", "receber código do cartão", "proposta token", "número de token", "código de token da proposta"
-		No caso de "não encontrei meu serviço" ou a solicitação não informar isso, ou estiver muito ambígua, retorne a resposta vazia conforme exemplo:
-		{
-		"service_id": "",
-		"service_name": ""
-		}
 	`
