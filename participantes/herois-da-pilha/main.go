@@ -35,8 +35,8 @@ func main() {
 		Addr:    addr,
 		Handler: mux,
 		// Timeouts razoáveis para um serviço de baixa latência
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 5 * time.Second,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 15 * time.Second,
 		IdleTimeout:  60 * time.Second,
 	}
 
