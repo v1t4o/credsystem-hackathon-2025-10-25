@@ -13,7 +13,7 @@ var ValidServices = map[string]string{
 	"9":  "Desbloqueio de Cartão",
 	"10": "Esqueceu senha / Troca de senha",
 	"11": "Perda e roubo",
-	"12": "Consulta do Saldo Conta do Mais",
+	"12": "Consulta do Saldo",
 	"13": "Pagamento de contas",
 	"14": "Reclamações",
 	"15": "Atendimento humano",
