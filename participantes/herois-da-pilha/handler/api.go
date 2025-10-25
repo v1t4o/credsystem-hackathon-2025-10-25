@@ -3,8 +3,8 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"herois-da-pilha/internal/service"
-	"herois-da-pilha/internal/util"
+	"herois-da-pilha/service"
+	"herois-da-pilha/util"
 	"net/http"
 )
 

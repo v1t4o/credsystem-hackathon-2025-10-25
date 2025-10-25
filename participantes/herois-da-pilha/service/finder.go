@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"herois-da-pilha/internal/data"
-	"herois-da-pilha/internal/util"
+	"herois-da-pilha/data"
+	"herois-da-pilha/util"
 
 	"github.com/sashabaranov/go-openai"
 )

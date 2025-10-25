@@ -7,7 +7,7 @@ import (
 	"os"
 	"time"
 
-	"herois-da-pilha/internal/handler"
+	"herois-da-pilha/handler"
 )
 
 func main() {
