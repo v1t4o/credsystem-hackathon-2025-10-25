@@ -6,6 +6,7 @@ services:
     environment:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - PORT=18020
+      - GOMAXPROCS=1
     ports:
       - "18020:18020"
     deploy:

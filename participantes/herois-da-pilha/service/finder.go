@@ -37,7 +37,7 @@ func NewFinderService() *FinderService {
 	config.BaseURL = "https://openrouter.ai/api/v1"
 
 	// Modelo recomendado para performance e custo
-	model := "openai/gpt-4o-mini"
+	model := "openai/gpt-4o-mini" // Revertido para GPT-4o Mini para corrigir a acurácia
 
 	fmt.Printf("Serviço Finder inicializado com: \n")
 	fmt.Printf("  Modelo de IA: %s\n", model)
@@ -51,7 +51,7 @@ func NewFinderService() *FinderService {
 		jobChannel:   make(chan util.JobRequest),
 	}
 
-	numWorkers := 5 // Número de goroutines para processar chamadas à IA
+	numWorkers := 10 // Revertido para 10 workers
 
 	for i := 0; i < numWorkers; i++ {
 		s.wg.Add(1)
@@ -135,6 +135,12 @@ func (s *FinderService) worker() {
 				fmt.Printf("Erro ao fazer parse do JSON da IA: %v. Conteúdo recebido: %s\n", err, aiResponseContent)
 				job.ResponseChan <- util.FindServiceResponse{Success: false, Error: fmt.Errorf("erro ao decodificar a resposta da IA: %w", err).Error()}
 				return // Usar return em vez de continue para sair da função anônima
+			}
+
+			// Adição: Tratar o caso de service_id vazio retornado pelo modelo
+			if aiResponse.ServiceID == "" {
+				job.ResponseChan <- util.FindServiceResponse{Success: false, Error: "nenhuma correspondência clara encontrada pela IA para a intenção"}
+				return
 			}
 
 			serviceIDInt, err := strconv.ParseInt(aiResponse.ServiceID, 10, 64)
