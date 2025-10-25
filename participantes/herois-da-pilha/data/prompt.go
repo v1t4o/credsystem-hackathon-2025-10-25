@@ -7,7 +7,7 @@ const IntentClassificationPrompt = `
 
 		Responda apenas com o JSON no formato:
 		{
-		"service_id": <ID do serviço>,
+		"service_id": "<ID do serviço>",
 		"service_name": "<Nome do serviço>"
 		}
 		Escolha apenas UM serviço se houver correspondência clara ou alta confiança com a solicitação.
@@ -32,51 +32,50 @@ const IntentClassificationPrompt = `
 		SERVIÇOS VÁLIDOS:
 
 		"1": Consulta Limite / Vencimento do cartão / Melhor dia de compra
-
 		Intenções de exemplo: "Quanto tem disponível para usar", "quando fecha minha fatura", "Quando vence meu cartão", "quando posso comprar", "vencimento da fatura", "valor para gastar"
+		
 		"2": Segunda via de boleto de acordo
-
 		Intenções de exemplo: "segunda via boleto de acordo", "Boleto para pagar minha negociação", "código de barras acordo", "preciso pagar negociação", "enviar boleto acordo", "boleto da negociação"
+		
 		"3": Segunda via de Fatura
-
-		Intenções de exemplo: "quero meu boleto", "segunda via de fatura", "código de barras fatura", "quero a fatura do cartão", "enviar boleto da fatura"
+		Intenções de exemplo: "quero meu boleto", "segunda via de fatura", "código de barras fatura", "quero a fatura do cartão", "enviar boleto da fatura", "boleto para pagamento"
+		
 		"4": Status de Entrega do Cartão
-
 		Intenções de exemplo: "onde está meu cartão", "meu cartão não chegou", "status da entrega do cartão", "cartão em transporte", "previsão de entrega do cartão", "cartão foi enviado?"
+		
 		"5": Status de cartão
-
 		Intenções de exemplo: "não consigo passar meu cartão", "meu cartão não funciona", "cartão recusado", "cartão não está passando", "status do cartão ativo", "problema com cartão"
+		
 		"6": Solicitação de aumento de limite
-
 		Intenções de exemplo: "quero mais limite", "aumentar limite do cartão", "solicitar aumento de crédito", "preciso de mais limite", "pedido de aumento de limite", "limite maior no cartão"
+		
 		"7": Cancelamento de cartão
-
 		Intenções de exemplo: "cancelar cartão", "quero encerrar meu cartão", "bloquear cartão definitivamente", "cancelamento de crédito", "desistir do cartão"
+		
 		"8": Telefones de seguradoras
-
 		Intenções de exemplo: "quero cancelar seguro", "telefone do seguro", "contato da seguradora", "preciso falar com o seguro", "seguro do cartão", "cancelar assistência"
+		
 		"9": Desbloqueio de Cartão
-
 		Intenções de exemplo: "desbloquear cartão", "ativar cartão novo", "como desbloquear meu cartão", "quero desbloquear o cartão", "cartão para uso imediato", "desbloqueio para compras"
+		
 		"10": Esqueceu senha / Troca de senha
-
 		Intenções de exemplo: "não tenho mais a senha do cartão", "esqueci minha senha", "trocar senha do cartão", "preciso de nova senha", "recuperar senha", "senha bloqueada"
+		
 		"11": Perda e roubo
-
 		Intenções de exemplo: "perdi meu cartão", "roubaram meu cartão", "cartão furtado", "perda do cartão", "bloquear cartão por roubo", "extravio de cartão"
+		
 		"12": Consulta do Saldo
-
 		Intenções de exemplo: "saldo conta corrente", "consultar saldo", "quanto tenho na conta", "extrato da conta", "saldo disponível", "meu saldo atual"
+		
 		"13": Pagamento de contas
-
-		Intenções de exemplo: "quero pagar minha conta", "pagar boleto", "pagamento de conta", "quero pagar fatura", "efetuar pagamento"
+		Intenções de exemplo: "quero pagar minha conta", "pagar boleto", "pagamento de conta", "efetuar pagamento", "pagar minha fatura", "débito da fatura"
+		
 		"14": Reclamações
-
 		Intenções de exemplo: "quero reclamar", "abrir reclamação", "fazer queixa", "reclamar atendimento", "registrar problema", "protocolo de reclamação"
+		
 		"15": Atendimento humano
-
 		Intenções de exemplo: "falar com uma pessoa", "preciso de humano", "transferir para atendente", "quero falar com atendente", "atendimento pessoal"
+		
 		"16": Token de proposta
-
 		Intenções de exemplo: "código para fazer meu cartão", "token de proposta", "receber código do cartão", "proposta token", "número de token", "código de token da proposta"
 	`
