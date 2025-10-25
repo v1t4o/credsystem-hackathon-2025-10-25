@@ -5,9 +5,9 @@ services:
       dockerfile: Dockerfile
     environment:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-      - PORT=${PORT}
+      - PORT=18020
     ports:
-      - "${PORT}:${PORT}"
+      - "18020:18020"
     deploy:
       resources:
         limits:
