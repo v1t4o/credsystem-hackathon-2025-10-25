@@ -1,23 +1,23 @@
 package util
 
 // Define os serviços válidos em um mapa (ID -> Nome do Serviço).
-var ValidServices = map[int]string{
-	1:  "Consulta Limite / Vencimento do cartão / Melhor dia de compra",
-	2:  "Segunda via de boleto de acordo",
-	3:  "Segunda via de Fatura",
-	4:  "Status de Entrega do Cartão",
-	5:  "Status de cartão",
-	6:  "Solicitação de aumento de limite",
-	7:  "Cancelamento de cartão",
-	8:  "Telefones de seguradoras",
-	9:  "Desbloqueio de Cartão",
-	10: "Esqueceu senha / Troca de senha",
-	11: "Perda e roubo",
-	12: "Consulta do Saldo Conta do Mais",
-	13: "Pagamento de contas",
-	14: "Reclamações",
-	15: "Atendimento humano",
-	16: "Token de proposta",
+var ValidServices = map[string]string{
+	"1":  "Consulta Limite / Vencimento do cartão / Melhor dia de compra",
+	"2":  "Segunda via de boleto de acordo",
+	"3":  "Segunda via de Fatura",
+	"4":  "Status de Entrega do Cartão",
+	"5":  "Status de cartão",
+	"6":  "Solicitação de aumento de limite",
+	"7":  "Cancelamento de cartão",
+	"8":  "Telefones de seguradoras",
+	"9":  "Desbloqueio de Cartão",
+	"10": "Esqueceu senha / Troca de senha",
+	"11": "Perda e roubo",
+	"12": "Consulta do Saldo Conta do Mais",
+	"13": "Pagamento de contas",
+	"14": "Reclamações",
+	"15": "Atendimento humano",
+	"16": "Token de proposta",
 }
 
 // FindServiceRequest é o corpo da requisição POST /api/find-service
@@ -27,7 +27,7 @@ type FindServiceRequest struct {
 
 // ServiceData é a estrutura de dados retornada para o serviço encontrado
 type ServiceData struct {
-	ServiceID   int    `json:"service_id"`
+	ServiceID   string `json:"service_id"`
 	ServiceName string `json:"service_name"`
 }
 
@@ -45,6 +45,6 @@ type HealthzResponse struct {
 
 // AIResponse é a estrutura esperada (e forçada) do modelo de IA
 type AIResponse struct {
-	ServiceID   int    `json:"service_id"`
+	ServiceID   string `json:"service_id"`
 	ServiceName string `json:"service_name"`
 }

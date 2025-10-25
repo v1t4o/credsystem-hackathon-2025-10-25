@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"herois-da-pilha/internal/data"
 	"herois-da-pilha/internal/util"
 
 	"github.com/sashabaranov/go-openai"
@@ -40,31 +41,8 @@ func NewFinderService() *FinderService {
 	return s
 }
 
-// generateSystemPrompt gera a lista de serviços para o modelo de IA.
-func generateSystemPrompt() string {
-	prompt := `
-	Você é um classificador de intenções para a URA da Credsystem. Sua única tarefa é analisar a 'SOLICITAÇÃO' e retornar **apenas** o JSON do serviço mais adequado. 
-	Você deve escolher estritamente um dos IDs listados. Não adicione nenhum texto, explicação, prefixo ou sufixo fora do JSON. 
-
-	SERVIÇOS VÁLIDOS:
-	- ID 1: Consulta Limite / Vencimento do cartão / Melhor dia de compra
-	- ID 2: Segunda via de boleto de acordo
-	- ID 3: Segunda via de Fatura
-	- ID 4: Status de Entrega do Cartão
-	- ID 5: Status de cartão
-	- ID 6: Solicitação de aumento de limite
-	- ID 7: Cancelamento de cartão
-	- ID 8: Telefones de seguradoras
-	- ID 9: Desbloqueio de Cartão
-	- ID 10: Esqueceu senha / Troca de senha
-	- ID 11: Perda e roubo
-	- ID 12: Consulta do Saldo Conta do Mais
-	- ID 13: Pagamento de contas
-	- ID 14: Reclamações
-	- ID 15: Atendimento humano
-	- ID 16: Token de proposta
-	`
-	return prompt
+func getPrompt() string {
+	return data.IntentClassificationPrompt
 }
 
 // FindService usa o cache ou o modelo de IA para classificar a intenção.
@@ -83,7 +61,7 @@ func (s *FinderService) FindService(intent string) util.FindServiceResponse {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	systemPrompt := generateSystemPrompt()
+	systemPrompt := getPrompt()
 
 	responseFormat := &openai.ChatCompletionResponseFormat{
 		Type: openai.ChatCompletionResponseFormatTypeJSONObject,
@@ -126,7 +104,7 @@ func (s *FinderService) FindService(intent string) util.FindServiceResponse {
 	// Validar se o ID retornado existe na nossa lista de serviços válidos
 	serviceName, found := util.ValidServices[aiResponse.ServiceID]
 	if !found {
-		return util.FindServiceResponse{Success: false, Error: fmt.Errorf("o ID de serviço retornado pela IA (%d) é inválido. A IA deve usar apenas IDs válidos", aiResponse.ServiceID).Error()}
+		return util.FindServiceResponse{Success: false, Error: fmt.Errorf("o ID de serviço retornado pela IA (%s) é inválido. A IA deve usar apenas IDs válidos", aiResponse.ServiceID).Error()}
 	}
 
 	// Cria o dado final, usando o nome oficial do ID para garantir consistência

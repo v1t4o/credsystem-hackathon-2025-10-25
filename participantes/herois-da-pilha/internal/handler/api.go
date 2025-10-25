@@ -50,7 +50,7 @@ func (h *APIHandler) HealthCheckHandler(w http.ResponseWriter, r *http.Request) 
 func (h *APIHandler) FindServiceHandler(w http.ResponseWriter, r *http.Request) {
 	// A rota só é acessada via POST, mas é bom garantir.
 	if r.Method != http.MethodPost {
-		writeJSON(w, http.StatusMethodNotAllowed, util.FindServiceResponse{
+		writeJSON(w, http.StatusOK, util.FindServiceResponse{
 			Success: false,
 			Error:   "Método não permitido. Use POST.",
 		})
@@ -61,7 +61,7 @@ func (h *APIHandler) FindServiceHandler(w http.ResponseWriter, r *http.Request) 
 
 	// 1. Binding do JSON de entrada (usando a biblioteca padrão)
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Intent == "" {
-		writeJSON(w, http.StatusBadRequest, util.FindServiceResponse{
+		writeJSON(w, http.StatusOK, util.FindServiceResponse{
 			Success: false,
 			Error:   "Corpo da requisição inválido. Esperado {\"intent\": \"string\"}",
 		})
@@ -72,10 +72,5 @@ func (h *APIHandler) FindServiceHandler(w http.ResponseWriter, r *http.Request) 
 	response := h.FinderService.FindService(req.Intent)
 
 	// 3. Resposta
-	if !response.Success {
-		writeJSON(w, http.StatusInternalServerError, response)
-		return
-	}
-
 	writeJSON(w, http.StatusOK, response)
 }
