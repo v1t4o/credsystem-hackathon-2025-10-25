@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"sync"
 	"time"
 
 	"herois-da-pilha/internal/util"
@@ -18,8 +17,6 @@ import (
 type FinderService struct {
 	openAIClient *openai.Client
 	modelName    string
-	cache        map[string]util.ServiceData // A chave é a intent (string)
-	mu           sync.RWMutex                // Mutex para proteger o mapa
 }
 
 // NewFinderService inicializa o cliente OpenAI (OpenRouter) e o cache.
@@ -38,7 +35,6 @@ func NewFinderService() *FinderService {
 	s := &FinderService{
 		openAIClient: openai.NewClientWithConfig(config),
 		modelName:    model,
-		cache:        make(map[string]util.ServiceData),
 	}
 
 	return s
@@ -46,22 +42,40 @@ func NewFinderService() *FinderService {
 
 // generateSystemPrompt gera a lista de serviços para o modelo de IA.
 func generateSystemPrompt() string {
-	prompt := "Você é um classificador de intenções para a URA da Credsystem. Sua única tarefa é analisar a 'SOLICITAÇÃO' e retornar **apenas** o JSON do serviço mais adequado. Você deve escolher estritamente um dos IDs listados. Não adicione nenhum texto, explicação, prefixo ou sufixo fora do JSON. \n\nSERVIÇOS VÁLIDOS:\n"
-	for id, name := range util.ValidServices {
-		prompt += fmt.Sprintf("- ID %d: %s\n", id, name)
-	}
+	prompt := `
+	Você é um classificador de intenções para a URA da Credsystem. Sua única tarefa é analisar a 'SOLICITAÇÃO' e retornar **apenas** o JSON do serviço mais adequado. 
+	Você deve escolher estritamente um dos IDs listados. Não adicione nenhum texto, explicação, prefixo ou sufixo fora do JSON. 
+
+	SERVIÇOS VÁLIDOS:
+	- ID 1: Consulta Limite / Vencimento do cartão / Melhor dia de compra
+	- ID 2: Segunda via de boleto de acordo
+	- ID 3: Segunda via de Fatura
+	- ID 4: Status de Entrega do Cartão
+	- ID 5: Status de cartão
+	- ID 6: Solicitação de aumento de limite
+	- ID 7: Cancelamento de cartão
+	- ID 8: Telefones de seguradoras
+	- ID 9: Desbloqueio de Cartão
+	- ID 10: Esqueceu senha / Troca de senha
+	- ID 11: Perda e roubo
+	- ID 12: Consulta do Saldo Conta do Mais
+	- ID 13: Pagamento de contas
+	- ID 14: Reclamações
+	- ID 15: Atendimento humano
+	- ID 16: Token de proposta
+	`
 	return prompt
 }
 
 // FindService usa o cache ou o modelo de IA para classificar a intenção.
-func (s *FinderService) FindService(intent string) (*util.ServiceData, error) {
+func (s *FinderService) FindService(intent string) util.FindServiceResponse {
 	// 1. TENTAR LER DO CACHE (Leitura Rápida)
-	s.mu.RLock()
-	if data, ok := s.cache[intent]; ok {
-		s.mu.RUnlock()
-		return &data, nil // Cache HIT: Retorno instantâneo
-	}
-	s.mu.RUnlock()
+	// s.mu.RLock() // Removed
+	// if data, ok := s.cache[intent]; ok { // Removed
+	// 	s.mu.RUnlock() // Removed
+	// 	return &data, nil // Cache HIT: Retorno instantâneo // Removed
+	// } // Removed
+	// s.mu.RUnlock() // Removed
 
 	// 2. SE NÃO ESTÁ NO CACHE, CHAMAR A IA
 
@@ -94,11 +108,11 @@ func (s *FinderService) FindService(intent string) (*util.ServiceData, error) {
 	)
 
 	if err != nil {
-		return nil, fmt.Errorf("erro na chamada à API OpenRouter (ou timeout): %w", err)
+		return util.FindServiceResponse{Success: false, Error: fmt.Errorf("erro na chamada à API OpenRouter (ou timeout): %w", err).Error()}
 	}
 
 	if len(resp.Choices) == 0 {
-		return nil, fmt.Errorf("a API OpenRouter não retornou resposta (Choices vazio)")
+		return util.FindServiceResponse{Success: false, Error: "a API OpenRouter não retornou resposta (Choices vazio)"}
 	}
 
 	// Tentar parsear a resposta JSON da IA
@@ -106,13 +120,13 @@ func (s *FinderService) FindService(intent string) (*util.ServiceData, error) {
 	var aiResponse util.AIResponse
 	if err := json.Unmarshal([]byte(aiResponseContent), &aiResponse); err != nil {
 		fmt.Printf("Erro ao fazer parse do JSON da IA: %v. Conteúdo recebido: %s\n", err, aiResponseContent)
-		return nil, fmt.Errorf("erro ao decodificar a resposta da IA: %w", err)
+		return util.FindServiceResponse{Success: false, Error: fmt.Errorf("erro ao decodificar a resposta da IA: %w", err).Error()}
 	}
 
 	// Validar se o ID retornado existe na nossa lista de serviços válidos
 	serviceName, found := util.ValidServices[aiResponse.ServiceID]
 	if !found {
-		return nil, fmt.Errorf("o ID de serviço retornado pela IA (%d) é inválido. A IA deve usar apenas IDs válidos", aiResponse.ServiceID)
+		return util.FindServiceResponse{Success: false, Error: fmt.Errorf("o ID de serviço retornado pela IA (%d) é inválido. A IA deve usar apenas IDs válidos", aiResponse.ServiceID).Error()}
 	}
 
 	// Cria o dado final, usando o nome oficial do ID para garantir consistência
@@ -122,9 +136,5 @@ func (s *FinderService) FindService(intent string) (*util.ServiceData, error) {
 	}
 
 	// 3. SE SUCESSO, ARMAZENAR NO CACHE (Escrita Protegida)
-	s.mu.Lock()
-	s.cache[intent] = finalServiceData
-	s.mu.Unlock()
-
-	return &finalServiceData, nil
+	return util.FindServiceResponse{Success: true, Data: finalServiceData}
 }

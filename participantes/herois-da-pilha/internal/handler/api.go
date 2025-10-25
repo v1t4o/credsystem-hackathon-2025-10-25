@@ -68,20 +68,14 @@ func (h *APIHandler) FindServiceHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// 2. Chama o serviço de IA/Cache para encontrar o serviço mais adequado
-	serviceData, err := h.FinderService.FindService(req.Intent)
-	if err != nil {
-		// Em caso de erro (ex: falha na API, parsing inválido, timeout)
-		writeJSON(w, http.StatusInternalServerError, util.FindServiceResponse{
-			Success: false,
-			Error:   "Erro ao processar a solicitação de IA/Cache: " + err.Error(),
-		})
+	// 2. Chama o serviço de IA para encontrar o serviço mais adequado
+	response := h.FinderService.FindService(req.Intent)
+
+	// 3. Resposta
+	if !response.Success {
+		writeJSON(w, http.StatusInternalServerError, response)
 		return
 	}
 
-	// 3. Resposta de sucesso
-	writeJSON(w, http.StatusOK, util.FindServiceResponse{
-		Success: true,
-		Data:    *serviceData,
-	})
+	writeJSON(w, http.StatusOK, response)
 }
