@@ -65,7 +65,7 @@ Então você deve:
 
 3. No arquivo `./assets/intents_pre_loaded.csv` você encontrará uma lista contendo as 93  intenções iniciais e seus respectivos serviços. Utilize essa lista para treinar seu modelo de IA.
 
-4. **Não invente serviços, utilize um dos 17 serviços** listados:
+4. **Não invente serviços, utilize um dos 16 serviços** listados:
 
 - Consulta Limite / Vencimento do cartão / Melhor dia de compra (ID 1)
 - Segunda via de boleto de acordo (ID 2)
