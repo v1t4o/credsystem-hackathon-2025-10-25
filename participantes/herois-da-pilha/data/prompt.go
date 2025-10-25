@@ -26,7 +26,7 @@ const IntentClassificationPrompt = `
 		Se a solicitação envolver perda, roubo, bloqueio ou segurança, priorize "Perda e roubo" ou "Cancelamento de cartão" conforme o contexto.
 		Retorne um JSON vazio ({"service_id": "", "service_name": ""}) se a solicitação for genérica (ex: "quero ajuda", "preciso de suporte"), expressar incapacidade de encontrar um serviço específico ("não encontrei meu serviço"), ou se não houver *nenhuma* correspondência clara com qualquer serviço válido.
 		Se a solicitação envolver dúvidas sobre saldo, vencimento, limite, ou melhores datas, direcione para "Consulta Limite / Vencimento do cartão / Melhor dia de compra".
-		Se a solicitação envolver boletos, faturas ou pagamentos, diferencie entre "Segunda via de boleto de acordo", "Segunda via de Fatura" e "Pagamento de contas" conforme o contexto.
+		**ATENÇÃO CRÍTICA**: Se a solicitação contiver a palavra "fatura" E QUALQUER TERMO RELACIONADO A PAGAMENTO (ex: "pagar", "quitar", "liquidar", "efetuar pagamento"), OBRIGATORIAMENTE PRIORIZE "Pagamento de contas". NO ENTANTO, se a solicitação for especificamente "fatura para pagamento", classifique como "Segunda via de Fatura". Se a solicitação for por um "boleto" genérico (ex: "quero meu boleto"), PRIORIZE "Segunda via de Fatura". O serviço "Segunda via de boleto de acordo" DEVE ser escolhido APENAS se a intenção for EXCLUSIVAMENTE sobre um acordo ou negociação. O serviço "Segunda via de Fatura" DEVE ser escolhido APENAS se a intenção for EXCLUSIVAMENTE a de SOLICITAR O DOCUMENTO da fatura, sem nenhuma menção de pagamento. Diferencie entre "Segunda via de boleto de acordo", "Segunda via de Fatura" e "Pagamento de contas" conforme o contexto.
 		Sempre prefira o serviço que melhor resolve a intenção do usuário, mesmo que a frase não seja idêntica às do CSV.
 		Desconsidere solicitações que tratem apenas de aspectos pessoais e não relacionados aos negócios da Credsystem. No entanto, se a solicitação expressar sentimentos ou insatisfação relacionados a serviços da Credsystem (ex: "estou triste com meu limite, quero cancelar cartão", "estou muito bravo com as taxas abusivas, quero falar com atendente"), considere normalmente para classificação nos serviços relevantes.
 		SERVIÇOS VÁLIDOS:
@@ -35,10 +35,10 @@ const IntentClassificationPrompt = `
 		Intenções de exemplo: "Quanto tem disponível para usar", "quando fecha minha fatura", "Quando vence meu cartão", "quando posso comprar", "vencimento da fatura", "valor para gastar"
 		
 		"2": Segunda via de boleto de acordo
-		Intenções de exemplo: "segunda via boleto de acordo", "Boleto para pagar minha negociação", "código de barras acordo", "preciso pagar negociação", "enviar boleto acordo", "boleto da negociação"
+		Intenções de exemplo: "segunda via de boleto de negociação", "Boleto do meu acordo", "código de barras da minha renegociação", "preciso pagar minha negociação de dívida", "enviar boleto de acordo de pagamento", "boleto de renegociação de dívida"
 		
 		"3": Segunda via de Fatura
-		Intenções de exemplo: "quero meu boleto", "segunda via de fatura", "código de barras fatura", "quero a fatura do cartão", "enviar boleto da fatura", "boleto para pagamento"
+		Intenções de exemplo: "quero meu boleto", "solicitar o documento de fatura", "segunda via do documento", "código de barras do documento", "quero o documento do meu cartão", "enviar o boleto da minha conta", "fatura para pagamento", "documento da fatura para pagar", "boleto da minha fatura", "boleto do meu cartão"
 		
 		"4": Status de Entrega do Cartão
 		Intenções de exemplo: "onde está meu cartão", "meu cartão não chegou", "status da entrega do cartão", "cartão em transporte", "previsão de entrega do cartão", "cartão foi enviado?"
@@ -68,7 +68,7 @@ const IntentClassificationPrompt = `
 		Intenções de exemplo: "saldo conta corrente", "consultar saldo", "quanto tenho na conta", "extrato da conta", "saldo disponível", "meu saldo atual"
 		
 		"13": Pagamento de contas
-		Intenções de exemplo: "quero pagar minha conta", "pagar boleto", "pagamento de conta", "efetuar pagamento", "pagar minha fatura", "débito da fatura"
+		Intenções de exemplo: "quero pagar minha conta", "pagar boleto", "pagamento de conta", "quero pagar fatura", "efetuar pagamento", "pagamento da fatura", "quitar fatura", "pagar meu cartão", "pagar fatura do cartão", "liquidar fatura", "fazer o pagamento"
 		
 		"14": Reclamações
 		Intenções de exemplo: "quero reclamar", "abrir reclamação", "fazer queixa", "reclamar atendimento", "registrar problema", "protocolo de reclamação"
