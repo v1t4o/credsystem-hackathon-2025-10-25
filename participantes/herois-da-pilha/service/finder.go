@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -111,7 +112,7 @@ func (s *FinderService) worker() {
 						},
 						{
 							Role:    openai.ChatMessageRoleUser,
-							Content: fmt.Sprintf("SOLICITAÇÃO: '%s'\n\nRetorne no formato: {\"service_id\": int, \"service_name\": string}", job.Intent),
+							Content: fmt.Sprintf("SOLICITAÇÃO: '%s'\n\nRetorne no formato: {\"service_id\": string, \"service_name\": string}", job.Intent),
 						},
 					},
 					ResponseFormat: responseFormat,
@@ -130,15 +131,13 @@ func (s *FinderService) worker() {
 
 			aiResponseContent := strings.TrimSpace(resp.Choices[0].Message.Content)
 			var aiResponse util.AIResponse
-			decoder := json.NewDecoder(strings.NewReader(aiResponseContent))
-			decoder.UseNumber()
-			if err := decoder.Decode(&aiResponse); err != nil {
+			if err := json.Unmarshal([]byte(aiResponseContent), &aiResponse); err != nil {
 				fmt.Printf("Erro ao fazer parse do JSON da IA: %v. Conteúdo recebido: %s\n", err, aiResponseContent)
 				job.ResponseChan <- util.FindServiceResponse{Success: false, Error: fmt.Errorf("erro ao decodificar a resposta da IA: %w", err).Error()}
 				return // Usar return em vez de continue para sair da função anônima
 			}
 
-			serviceIDInt, err := aiResponse.ServiceID.Int64()
+			serviceIDInt, err := strconv.ParseInt(aiResponse.ServiceID, 10, 64)
 			if err != nil {
 				fmt.Printf("Erro ao converter ServiceID da IA para int: %v. Valor recebido: %s\n", err, aiResponse.ServiceID)
 				job.ResponseChan <- util.FindServiceResponse{Success: false, Error: fmt.Errorf("erro ao converter ServiceID da IA para int: %w", err).Error()}

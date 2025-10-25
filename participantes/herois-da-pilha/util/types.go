@@ -1,7 +1,5 @@
 package util
 
-import "encoding/json"
-
 // Define os serviços válidos em um mapa (ID -> Nome do Serviço).
 var ValidServices = map[int]string{
 	1:  "Consulta Limite / Vencimento do cartão / Melhor dia de compra",
@@ -47,8 +45,8 @@ type HealthzResponse struct {
 
 // AIResponse é a estrutura esperada (e forçada) do modelo de IA
 type AIResponse struct {
-	ServiceID   json.Number `json:"service_id"`
-	ServiceName string      `json:"service_name"`
+	ServiceID   string `json:"service_id"`
+	ServiceName string `json:"service_name"`
 }
 
 // JobRequest empacota a intenção e um canal de resposta para a solicitação.
