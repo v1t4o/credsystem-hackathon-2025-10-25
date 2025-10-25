@@ -3,7 +3,7 @@ import json
 response = requests.get(
   url="https://openrouter.ai/api/v1/key",
   headers={
-    "Authorization": f"Bearer "
+    "Authorization": f"Bearer <seu_token_aqui>"
   }
 )
 data = response.json()
